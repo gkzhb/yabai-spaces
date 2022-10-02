@@ -44,7 +44,7 @@ def filter_visible_spaces(spaces: list[dict]):
     '''filter spaces that should be displayed in the menu bar'''
     ret = []
     windows = json.loads(get_cmd_output(['yabai', '-m', 'query', '--windows'], 'get yabai windows'))
-    sticky_window_ids = [item for item in windows if item['is-sticky'] == True]
+    sticky_window_ids = [item['id'] for item in windows if item['is-sticky'] == True]
     for item in spaces:
         if item['is-visible'] == True or len(item['label']) > 0:
             # space matches one of these conditions:

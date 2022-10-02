@@ -16,20 +16,23 @@ class Color:
 
 def make_color(color_number: int) -> str:
     '''
-    shell printing color
+    set the color of printed text in terminal
     '''
     return f'\033[{color_number}m'
 
 def get_cmd_output_and_returncode(cmd):
     '''
-    run shell command and return stdout and command's return code
+    run shell command and return its stdout and return code
     '''
     result = subprocess.run(cmd, stdout=subprocess.PIPE)
     return (result.returncode, result.stdout)
 
 def get_cmd_output(cmd, cmd_desc):
     '''
-    check shell command runs successfully
+    run shell command and return its stdout
+
+    additionally check whether shell command runs successfully
+    if not, exit program
     '''
     result = get_cmd_output_and_returncode(cmd)
     if result[0] != 0:
@@ -40,9 +43,19 @@ def get_cmd_output(cmd, cmd_desc):
 def filter_visible_spaces(spaces: list[dict]):
     '''filter spaces that should be displayed in the menu bar'''
     ret = []
+    windows = json.loads(get_cmd_output(['yabai', '-m', 'query', '--windows'], 'get yabai windows'))
+    sticky_window_ids = [item for item in windows if item['is-sticky'] == True]
     for item in spaces:
-        if (item['is-visible'] == True or len(item['label']) > 0 or len(item['windows']) > 0):
+        if item['is-visible'] == True or len(item['label']) > 0:
+            # space matches one of these conditions:
+            # - space is visible
+            # - space has label
             ret.append(item)
+        else:
+            non_sticky_window_ids = [window for window in item['windows'] if sticky_window_ids.count(window) == 0]
+            if len(non_sticky_window_ids) > 0:
+            # there are non sticky windows in space
+                ret.append(item)
     return ret
 
 def get_space_display_string(item: tuple[int, str, int, bool], display: int) -> str:

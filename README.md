@@ -9,9 +9,8 @@ A swiftbar plugin displays yabai spaces, inspired by [SxC97/Yabai-Spaces](https:
 - Display yabai spaces in Mac OS menu bar.
   - Separate spaces belonging to different monitors (two monitors in the above image, and spaces of them are separated by '>')
   - Highlight current space for each monitor and markup focused space (displayed spaces are in red, focused space is wrapped by '<<' '>>')
-  - Show up yabai spaces' labels, and you can easily customize them with a
+  - Show up yabai spaces' labels, and you can easily customize them in a
   simple script
-    - If you want to customize how the space is displayed, you can edit `get_space_display_string` function in [`yabai.1d.py`](./yabai.1d.py) as you wish.
 
 ## Requirements
 
@@ -21,6 +20,7 @@ A swiftbar plugin displays yabai spaces, inspired by [SxC97/Yabai-Spaces](https:
 - [koekeishiya/yabai](https://github.com/koekeishiya/yabai)
 - [SwiftBar](https://github.com/swiftbar/SwiftBar) or [xbar (the BitBar reboot)](https://github.com/matryer/xbar) (not tested for xbar)
 - [chipsenkbeil/choose: Fuzzy matcher for OS X that uses both std{in,out} and a native GUI](https://github.com/chipsenkbeil/choose)
+- Fira Code Nerd font(optional): you can use other fonts or characters for the separator.
 
 ## Installation & Usage
 
@@ -48,12 +48,18 @@ yabai -m signal --add event=display_changed action="open -gj 'swiftbar://refresh
 yabai -m signal --add event=display_moved action="open -gj 'swiftbar://refreshplugin?name=yabai'"
 ```
 
+You can customize [`yabai.1d.py`](./yabai.1d.py) script as you need.
+
+For example, change the font by set `CUSTOM_FONT` variable.
+If you want to customize how the space is displayed, you can edit
+`get_space_display_string` function.
+
 ### Persist Yabai Space Labels
 
 When you restart Yabai, all the labels of spaces will be reset. And here comes
 the scripts to persist these data.
 
-Executing [`a`](./rename-space.fish) (bind this script to a hotkey in skhd is
+Executing [`rename-space.fish`](./rename-space.fish) (bind this script to a hotkey in skhd is
 recommended) will prompt [`choose`](https://github.com/chipsenkbeil/choose) to rename current
 focused space's label and persist latest labels to a local csv file
 `$HOME/.yabai-labels.csv` which contains `(space index, label)` pairs.
@@ -75,3 +81,32 @@ Type any new label you want in `choose` and press `Enter`, and you'll get your
 space label renamed.
 
 If you want to cancel renaming space in `choose`, use `Esc`.
+
+### Display skhd mode
+
+Since skhd command-line does not provide methods to get current skhd mode, we need
+to store it to somewhere which I choose a temp file `/tmp/skhd_mode`.
+
+Executing [`skhd-mode.py`](./skhd-mode.py) with no arguments will print currently
+saved skhd mode. Execute it with arguments to save the argument string
+as new skhd mode. You can put this script in your shell `PATH`.
+
+What's more, in skhd config, [`skhd-mode.py`](./skhd-mode.py) with mode name as
+argument should be executed when skhd enters a mode.
+
+For example, when entering `default` mode, execute `skhd-mode.py`(assuming
+it's in shell `PATH`) with mode
+name and then refresh yabai swiftbar plugin.
+```
+:: default : skhd-mode.py default; open -gj 'swiftbar://refreshplugin?name=yabai'
+```
+
+[`yabai.1d.py`](./yabai.1d.py) uses this script to get current skhd mode and
+displays it.
+
+<img width="503" alt="image" src="https://user-images.githubusercontent.com/36144635/204805131-22364c41-0084-4c6e-b32e-7fb80420aa7e.png">
+
+If `skhd-mode.py` is not in your shell `PATH`, you should not only change the
+script path in skhd config above, but also set the variable
+`YABAI_SPACES_PATH` in `yabai.1d.py`.
+

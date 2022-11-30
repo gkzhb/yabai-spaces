@@ -9,6 +9,8 @@ import tempfile
 DISPLAY_SEP = ' '
 # customize font displayed in menu bar
 CUSTOM_FONT = 'FiraCode Nerd Font'
+# path to this git repo, if `skhd-mode.py` is in your shell PATH, you can leave this string empty
+YABAI_SPACES_PATH = ''
 
 class Color:
     red = 31
@@ -67,12 +69,17 @@ def get_space_display_string(item: tuple[int, str, int, bool], display: int) -> 
     '''
     ret = ''
     if item[1] and len(item[1]) > 0:
+        # label is not empty
         ret = f'{item[1]}({item[0]})'
     else:
+        # label is empty
         ret = str(item[0])
     if item[3] == True:
+        # the space is displayed
         if display == item[2]:
+            # the space is focused
             ret = f'{ret}'
+        # add color to emphasize displayed space
         ret = make_color(colors.red) + ret + make_color(colors.white)
     return ret
 
@@ -105,7 +112,8 @@ focused_display = json.loads(cmd_result)['index']
 str = get_all_display_string(visible_spaces_data, focused_display)
 str += f'{DISPLAY_SEP} | font="{CUSTOM_FONT}" ansi=true'
 
-skhd_mode = get_cmd_output([f'{os.environ.get("HOME")}/scripts/yabai/skhd_mode.fish'], 'get skhd mode').decode('utf-8').strip()
+# display skhd mode
+skhd_mode = get_cmd_output([os.path.join(YABAI_SPACES_PATH, 'skhd-mode.py')], 'get skhd mode').decode('utf-8').strip()
 if skhd_mode != 'default':
     str = skhd_mode + str
 

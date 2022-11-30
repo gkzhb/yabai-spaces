@@ -74,6 +74,8 @@ add `restore-space-labels.fish` to your `.yabairc` configuration like this
 
 #### About rename space label
 
+<img width="829" alt="image" src="https://user-images.githubusercontent.com/36144635/204808747-2e0c84c8-d33b-420b-9ab8-ac88f4fc4242.png">
+
 In `choose`, you get a default '»' in the selection list. This selection item represents
 clearing the space label. Press `Enter` to choose a selection item in `choose`.
 

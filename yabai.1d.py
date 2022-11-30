@@ -61,6 +61,9 @@ def filter_visible_spaces(spaces: list[dict]):
 def get_space_display_string(item: tuple[int, str, int, bool], display: int) -> str:
     '''
     format spaces displayed in menu bar
+
+    :param item: tuple contains [space index, label, monitor id, whether space is visible]
+    :param display: currently focused monitor id
     '''
     ret = ''
     if item[1] and len(item[1]) > 0:

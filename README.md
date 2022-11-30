@@ -4,11 +4,14 @@ A swiftbar plugin displays yabai spaces, inspired by [SxC97/Yabai-Spaces](https:
 
 ## Features
 
+<img width="478" alt="image" src="https://user-images.githubusercontent.com/36144635/204783828-ccbcf4aa-b423-404e-a5a9-de6c8a3eb245.png">
+
 - Display yabai spaces in Mac OS menu bar.
-  - Separate spaces belonging to different displays
-  - Highlight current space for each display and markup
+  - Separate spaces belonging to different monitors (two monitors in the above image, and spaces of them are separated by '>')
+  - Highlight current space for each monitor and markup focused space (displayed spaces are in red, focused space is wrapped by '<<' '>>')
   - Show up yabai spaces' labels, and you can easily customize them with a
   simple script
+    - If you want to customize how the space is displayed, you can edit `get_space_display_string` function in [`yabai.1d.py`](./yabai.1d.py) as you wish.
 
 ## Requirements
 

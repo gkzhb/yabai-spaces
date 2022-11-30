@@ -1,4 +1,12 @@
 #!/usr/bin/env python3
+# <bitbar.title>Yabai Spaces With Labels</bitbar.title>
+# <bitbar.version>v0.1</bitbar.version>
+# <bitbar.author>gkzhb</bitbar.author>
+# <bitbar.author.github>gkzhb</bitbar.author.github>
+# <bitbar.desc>Display yabai spaces and labels</bitbar.desc>
+# <bitbar.image>https://user-images.githubusercontent.com/36144635/204783828-ccbcf4aa-b423-404e-a5a9-de6c8a3eb245.png</bitbar.image>
+# <bitbar.dependencies>python3,choose</bitbar.dependencies>
+# <bitbar.abouturl>https://github.com/gkzhb/yabai-spaces</bitbar.abouturl>
 import subprocess
 import csv
 import os

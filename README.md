@@ -15,8 +15,6 @@ A swiftbar plugin displays yabai spaces, inspired by [SxC97/Yabai-Spaces](https:
 ## Requirements
 
 - Python 3
-- Fish Shell, since I'm using fish shell (may be replaced by Python scripts in the future)
-- [jq: Command-line JSON processor](https://github.com/stedolan/jq) (may not be required without Fish shell scripts in the future)
 - [koekeishiya/yabai](https://github.com/koekeishiya/yabai)
 - [SwiftBar](https://github.com/swiftbar/SwiftBar) or [xbar (the BitBar reboot)](https://github.com/matryer/xbar) (not tested for xbar)
 - [chipsenkbeil/choose: Fuzzy matcher for OS X that uses both std{in,out} and a native GUI](https://github.com/chipsenkbeil/choose)
@@ -112,3 +110,9 @@ If `skhd-mode.py` is not in your shell `PATH`, you should not only change the
 script path in skhd config above, but also set the variable
 `YABAI_SPACES_PATH` in `yabai.1d.py`.
 
+## Changelog
+
+- v0.1
+  - Add skhd mode display and related scripts
+  - Replace Fish shell scripts with Python scripts
+  - Update requirements and add some screenshots in README

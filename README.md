@@ -17,17 +17,22 @@ A swiftbar plugin displays yabai spaces, inspired by [SxC97/Yabai-Spaces](https:
 - Python 3
 - [koekeishiya/yabai](https://github.com/koekeishiya/yabai)
 - [SwiftBar](https://github.com/swiftbar/SwiftBar) or [xbar (the BitBar reboot)](https://github.com/matryer/xbar) (not tested for xbar)
-- [chipsenkbeil/choose: Fuzzy matcher for OS X that uses both std{in,out} and a native GUI](https://github.com/chipsenkbeil/choose)
+- [chipsenkbeil/choose: Fuzzy matcher for OS X that uses both std{in,out} and a native GUI](https://github.com/chipsenkbeil/choose)(optional): you can use my [Raycast plugin](https://github.com/gkzhb/raycast-yabai) which provides a better UI
 - Fira Code Nerd font(optional): you can use other fonts or characters for the separator.
 
 ## Installation & Usage
 
 ### Yabai Spaces in menu bar
 
-Copy [`yabai.1d.py`](./yabai.1d.py) to your SwiftBar/xbar plugin's directory.
+Copy [`yabai.1d.py`](./yabai.1d.py) to your SwiftBar/xbar plugin's directory. And set the variable value of `YABAI_SPACES_PATH` in the file.
+
 If SwiftBar is running, you may see Yabai Spaces in your menu bar.
 > If SwiftBar is running and you cannot see it, it might be there is no enough
 space to display Yabai Spaces.
+
+
+There is another file [`yabai-simp.1d.py`](./yabai-simp.1d.py) that shows visible yabai spaces only, which occupies less space in the menu bar.
+
 
 You'd better press `Command` key and at the same time drag Yabai Spaces menu bar
 item to the most right to try to avoid it being hidden when there are plenty of menu

@@ -19,6 +19,7 @@ DISPLAY_SEP = ' '
 CUSTOM_FONT = 'FiraCode Nerd Font'
 # path to this git repo, if `skhd-mode.py` is in your shell PATH, you can leave this string empty
 YABAI_SPACES_PATH = ''
+YABAI_BIN_PATH = '/opt/homebrew/bin/yabai'
 
 class Color:
     red = 31
@@ -97,7 +98,7 @@ def get_all_display_string(spaces: tuple[int, str, int, bool], focused_display: 
 colors = Color()
 
 # get all yabai spaces info
-cmd_result = get_cmd_output(['yabai', '-m', 'query', '--spaces'], 'querying yabai spaces')
+cmd_result = get_cmd_output([YABAI_BIN_PATH, '-m', 'query', '--spaces'], 'querying yabai spaces')
 spaces = json.loads(cmd_result)
 
 filtered_spaces = filter_visible_spaces(spaces)
@@ -105,7 +106,7 @@ filtered_spaces = filter_visible_spaces(spaces)
 visible_spaces_data = [(item['index'], item['label'], item['display'], item['is-visible']) for item in filtered_spaces]
 
 # get current display info
-cmd_result = get_cmd_output(['yabai', '-m', 'query', '--displays', '--display'], 'querying current display')
+cmd_result = get_cmd_output([YABAI_BIN_PATH, '-m', 'query', '--displays', '--display'], 'querying current display')
 focused_display = json.loads(cmd_result)['index']
 str = get_all_display_string(visible_spaces_data, focused_display)
 str += f'{DISPLAY_SEP} | font="{CUSTOM_FONT}" ansi=true'

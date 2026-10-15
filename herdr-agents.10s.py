@@ -13,6 +13,8 @@ import subprocess
 
 
 TIMEOUT_SECONDS = 3
+MENU_FONT = "FiraCode Nerd Font"
+OTHER_ICON = ""  # nf-fa-ellipsis_h
 ANSI_ESCAPE = re.compile(r"\x1b\[[0-?]*[ -/]*[@-~]")
 
 
@@ -104,8 +106,8 @@ def render_menu(snapshot):
 
     title = f"Herdr ▶ {len(groups['running'])} ✓ {len(groups['completed'])}"
     if groups["other"]:
-        title += f" · 其他 {len(groups['other'])}"
-    lines = [title + " | dropdown=false", "---"]
+        title += f" {OTHER_ICON} {len(groups['other'])}"
+    lines = [title + f' | dropdown=false font="{MENU_FONT}"', "---"]
     status_labels = {"idle": "空闲", "blocked": "阻塞", "unknown": "未知"}
     for group, heading in (("running", "进行中"), ("completed", "已完成"), ("other", "其他状态")):
         agents = groups[group]

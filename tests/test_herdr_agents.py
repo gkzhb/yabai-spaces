@@ -61,7 +61,9 @@ class StateTests(unittest.TestCase):
             agent("blocked", "w1:p4"), agent("idle", "w1:p5"),
         ])
         output = plugin.render_menu(data)
-        self.assertIn("Herdr ▶ 1 ✓ 1 · 其他 3", output)
+        self.assertIn("Herdr ▶ 1 ✓ 1  3", output)
+        self.assertIn('font="FiraCode Nerd Font"', output.splitlines()[0])
+        self.assertNotIn("其他", output.splitlines()[0])
         self.assertIn("进行中（1）", output)
         self.assertIn("已完成（1）", output)
         self.assertIn("其他状态（3）", output)

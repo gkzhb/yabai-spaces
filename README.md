@@ -119,7 +119,11 @@ script path in skhd config above, but also set the variable
 
 [`herdr-agents.10s.py`](./herdr-agents.10s.py) is a standalone Python 3 SwiftBar
 plugin. It queries `herdr api snapshot` every **10 seconds** and displays
-`Herdr ▶ 3 ✓ 4` (running / completed agent counts). Yabai is not required.
+`Herdr ▶ 3 ✓ 4` (running / completed agent counts). When other states exist,
+it appends ` 2` (other agent count), using the Nerd Font `nf-fa-ellipsis_h`
+icon. The menu-bar title uses **FiraCode Nerd Font**; install that font or
+change `MENU_FONT` / `OTHER_ICON` in the script. Dropdown headings retain
+readable text such as **其他状态**. Yabai is not required.
 
 Click the menu-bar item to see the **进行中** and **已完成** lists. Each entry
 shows the **workspace name**, **tab name** and **pane ID**, for example:

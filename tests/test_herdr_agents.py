@@ -61,7 +61,7 @@ class StateTests(unittest.TestCase):
             agent("blocked", "w1:p4"), agent("idle", "w1:p5"),
         ])
         output = plugin.render_menu(data)
-        self.assertIn("Herdr ▶ 1 ✓ 1  3", output)
+        self.assertIn("Herdr ▶ 1 ✓ 1  3", plugin.ANSI_ESCAPE.sub("", output))
         self.assertIn('font="FiraCode Nerd Font"', output.splitlines()[0])
         self.assertNotIn("其他", output.splitlines()[0])
         self.assertIn("进行中（1）", output)
@@ -76,7 +76,7 @@ class StateTests(unittest.TestCase):
 
     def test_empty_snapshot(self):
         output = plugin.render_menu(snapshot())
-        self.assertIn("Herdr ▶ 0 ✓ 0", output)
+        self.assertIn("Herdr ▶ 0 ✓ 0", plugin.ANSI_ESCAPE.sub("", output))
         self.assertEqual(output.count("暂无"), 2)
         self.assertNotIn("其他状态", output)
 
@@ -88,7 +88,7 @@ class StateTests(unittest.TestCase):
         data = snapshot([agent("done")])
         data["panes"] = [{"agent_status": "working", "pane_id": "w1:p99"}]
         output = plugin.render_menu(data)
-        self.assertIn("Herdr ▶ 0 ✓ 1", output)
+        self.assertIn("Herdr ▶ 0 ✓ 1", plugin.ANSI_ESCAPE.sub("", output))
         self.assertNotIn("w1:p99", output)
 
     def test_sanitizes_external_labels_and_titles(self):
@@ -96,12 +96,61 @@ class StateTests(unittest.TestCase):
         data["workspaces"][0]["label"] = "项目\n恶意 | bash=evil"
         data["tabs"][0]["label"] = "\x1b[31mTab\x1b[0m\r\x00"
         output = plugin.render_menu(data)
-        self.assertNotIn("\x1b", output)
+        self.assertNotIn("\x1b", "\n".join(output.splitlines()[1:]))
         self.assertNotIn("\x00", output)
         self.assertNotIn("| bash=evil", output)
         self.assertNotIn("\nInjected", output)
         self.assertIn("｜ bash=evil", output)
         self.assertIn("Tab: Tab", output)
+
+
+class ColorTests(unittest.TestCase):
+    def test_title_colors_each_icon_and_count_and_resets(self):
+        title = plugin.render_menu(snapshot([
+            agent("working"), agent("done", "w1:p2"), agent("blocked", "w1:p3"),
+        ])).splitlines()[0]
+        self.assertIn("\x1b[34m▶ 1\x1b[0m", title)
+        self.assertIn("\x1b[32m✓ 1\x1b[0m", title)
+        self.assertIn("\x1b[33m 1\x1b[0m", title)
+        self.assertIn("ansi=true", title)
+        self.assertTrue(title.startswith("Herdr "))
+
+    def test_zero_counts_are_gray(self):
+        title = plugin.render_menu(snapshot()).splitlines()[0]
+        self.assertIn("\x1b[90m▶ 0\x1b[0m", title)
+        self.assertIn("\x1b[90m✓ 0\x1b[0m", title)
+
+    def test_other_count_is_orange_only_if_any_agent_is_blocked(self):
+        for status in ("idle", "unknown", "future_status", None, "blocked"):
+            with self.subTest(status=status):
+                title = plugin.render_menu(snapshot([
+                    agent("idle"), agent(status, "w1:p2"),
+                ])).splitlines()[0]
+                code = "33" if status == "blocked" else "90"
+                self.assertIn(f"\x1b[{code}m 2\x1b[0m", title)
+
+    def test_dropdown_rows_match_individual_status(self):
+        for status, color in (
+            ("working", "#007AFF"), ("done", "#34C759"),
+            ("blocked", "#FF9500"), ("idle", "#8E8E93"),
+            ("unknown", "#8E8E93"), ("future_status", "#8E8E93"),
+        ):
+            with self.subTest(status=status):
+                lines = plugin.render_menu(snapshot([agent(status)])).splitlines()
+                row = next(line for line in lines if "Pane: w1:p1" in line)
+                self.assertIn(f"color={color}", row)
+                self.assertIn("ansi=false emojize=false", row)
+                heading = lines[lines.index(row) - 1]
+                self.assertIn(f"color={color}", heading)
+                self.assertNotIn("disabled=true", heading)
+
+    def test_error_title_and_message_are_red(self):
+        lines = plugin.render_error("无法连接 | bash=evil\n---").splitlines()
+        self.assertIn("color=#FF3B30", lines[0])
+        self.assertIn("color=#FF3B30", lines[2])
+        self.assertNotIn("disabled=true", lines[2])
+        self.assertNotIn("| bash=evil", lines[2])
+        self.assertEqual(lines[-1], "立即刷新 | refresh=true")
 
 
 class TransportTests(unittest.TestCase):
@@ -183,7 +232,7 @@ class TransportTests(unittest.TestCase):
         stdout = io.StringIO()
         with contextlib.redirect_stdout(stdout):
             self.assertIsNone(plugin.main())
-        self.assertIn("Herdr ▶ 0 ✓ 1", stdout.getvalue())
+        self.assertIn("Herdr ▶ 0 ✓ 1", plugin.ANSI_ESCAPE.sub("", stdout.getvalue()))
         self.assertNotIn("Herdr ⚠", stdout.getvalue())
 
     @patch.object(plugin, "read_snapshot", side_effect=plugin.HerdrError("服务未启动"))

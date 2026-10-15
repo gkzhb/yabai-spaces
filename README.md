@@ -125,6 +125,14 @@ icon. The menu-bar title uses **FiraCode Nerd Font**; install that font or
 change `MENU_FONT` / `OTHER_ICON` in the script. Dropdown headings retain
 readable text such as **其他状态**. Yabai is not required.
 
+Status icons and their counts are colored together: **blue** for running,
+**green** for completed, **yellow/orange** for blocked, and **gray** for
+idle/unknown states or zero counts. The combined `` count uses the warning
+color if any agent is blocked; otherwise it stays gray. Dropdown headings
+and agent rows follow the same status colors (individual rows retain their
+own state color). Connection/query errors display **red**. Menu-bar segments
+use ANSI colors with `ansi=true`; dropdown rows use SwiftBar `color=`.
+
 Click the menu-bar item to see the **进行中** and **已完成** lists. Each entry
 shows the **workspace name**, **tab name** and **pane ID**, for example:
 

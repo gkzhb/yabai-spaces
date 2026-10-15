@@ -15,6 +15,14 @@ import subprocess
 TIMEOUT_SECONDS = 3
 MENU_FONT = "FiraCode Nerd Font"
 OTHER_ICON = ""  # nf-fa-ellipsis_h
+# ANSI for individual menu-bar segments; hex colors for whole dropdown rows.
+COLORS = {
+    "working": ("34", "#007AFF"),
+    "done": ("32", "#34C759"),
+    "blocked": ("33", "#FF9500"),
+    "neutral": ("90", "#8E8E93"),
+    "error": ("31", "#FF3B30"),
+}
 ANSI_ESCAPE = re.compile(r"\x1b\[[0-?]*[ -/]*[@-~]")
 
 
@@ -97,6 +105,23 @@ def agent_group(agent):
     return "other"
 
 
+def status_color(status):
+    return COLORS.get(status, COLORS["neutral"])
+
+
+def group_status(agents):
+    """A mixed 'other' group signals blocked agents before neutral states."""
+    for status in ("blocked", "working", "done"):
+        if any(agent.get("agent_status") == status for agent in agents):
+            return status
+    return "neutral"
+
+
+def colored_count(icon, agents):
+    code, _ = status_color(group_status(agents))
+    return f"\x1b[{code}m{icon} {len(agents)}\x1b[0m"
+
+
 def render_menu(snapshot):
     workspaces = {row["workspace_id"]: row for row in snapshot["workspaces"]}
     tabs = {row["tab_id"]: row for row in snapshot["tabs"]}
@@ -104,16 +129,19 @@ def render_menu(snapshot):
     for agent in snapshot["agents"]:
         groups[agent_group(agent)].append(agent)
 
-    title = f"Herdr ▶ {len(groups['running'])} ✓ {len(groups['completed'])}"
+    title = "Herdr " + colored_count("▶", groups["running"])
+    title += " " + colored_count("✓", groups["completed"])
     if groups["other"]:
-        title += f" {OTHER_ICON} {len(groups['other'])}"
-    lines = [title + f' | dropdown=false font="{MENU_FONT}"', "---"]
+        title += " " + colored_count(OTHER_ICON, groups["other"])
+    lines = [title + f' | dropdown=false ansi=true font="{MENU_FONT}"', "---"]
     status_labels = {"idle": "空闲", "blocked": "阻塞", "unknown": "未知"}
     for group, heading in (("running", "进行中"), ("completed", "已完成"), ("other", "其他状态")):
         agents = groups[group]
         if group == "other" and not agents:
             continue
-        lines.append(f"{heading}（{len(agents)}） | disabled=true")
+        _, color = status_color(group_status(agents))
+        # disabled=true would override status colors with the system disabled gray.
+        lines.append(f"{heading}（{len(agents)}） | color={color}")
         for agent in sorted(agents, key=lambda a: (
             str(a.get("workspace_id", "")), str(a.get("tab_id", "")), a["pane_id"]
         )):
@@ -125,7 +153,8 @@ def render_menu(snapshot):
             if group == "other":
                 status = agent.get("agent_status") or "unknown"
                 label += f" · {status_labels.get(status, status)}"
-            lines.append(menu_text(label) + " | ansi=false emojize=false")
+            _, color = status_color(agent.get("agent_status"))
+            lines.append(menu_text(label) + f" | color={color} ansi=false emojize=false")
             agent_name = menu_text(agent.get("agent") or "unknown")
             lines.append(f"--Agent: {agent_name} | disabled=true")
             terminal_title = agent.get("terminal_title_stripped") or agent.get("terminal_title")
@@ -144,9 +173,9 @@ def render_menu(snapshot):
 
 def render_error(message):
     return "\n".join([
-        "Herdr ⚠ | dropdown=false",
+        f"Herdr ⚠ | dropdown=false color={COLORS['error'][1]}",
         "---",
-        menu_text(message) + " | disabled=true ansi=false emojize=false",
+        menu_text(message) + f" | color={COLORS['error'][1]} ansi=false emojize=false",
         "立即刷新 | refresh=true",
     ])
 

@@ -115,6 +115,91 @@ If `skhd-mode.py` is not in your shell `PATH`, you should not only change the
 script path in skhd config above, but also set the variable
 `YABAI_SPACES_PATH` in `yabai.1d.py`.
 
+## Herdr Agents in menu bar
+
+[`herdr-agents.10s.py`](./herdr-agents.10s.py) is a standalone Python 3 SwiftBar
+plugin. It queries `herdr api snapshot` every **10 seconds** and displays
+`Herdr ▶ 3 ✓ 4` (running / completed agent counts). Yabai is not required.
+
+Click the menu-bar item to see the **进行中** and **已完成** lists. Each entry
+shows the **workspace name**, **tab name** and **pane ID**, for example:
+
+```text
+Workspace: my-project · Tab: 开发 · Pane: w1:p2
+```
+
+Hover an entry for its agent type and terminal/session title. Tab names come
+from Herdr tab labels, not terminal titles. An **立即刷新** menu item refreshes
+the data manually.
+
+### Install
+
+The local SwiftBar plugin directory is `~/scripts/swiftbar/`. From this repo:
+
+```bash
+chmod +x herdr-agents.10s.py
+ln -s "$PWD/herdr-agents.10s.py" "$HOME/scripts/swiftbar/herdr-agents.10s.py"
+open -gj 'swiftbar://refreshall'
+```
+
+The symlink keeps SwiftBar using the source in this project. The plugin needs
+Python 3 and a running local Herdr server with `api snapshot` support (verified
+with Herdr 0.9.3). It inherits `HERDR_SOCKET_PATH` when set; otherwise Herdr uses
+its default socket. Only the selected/default Herdr session is counted, not
+all named sessions or remote machines.
+
+For GUI environments with a minimal `PATH`, the plugin searches common Nix,
+Homebrew and `~/.local/bin` locations for Herdr. Set `HERDR_BIN_PATH` in the
+SwiftBar environment to override the executable. Python 3 must also be
+available on SwiftBar's `PATH` for the `/usr/bin/env python3` shebang.
+
+### State semantics
+
+- **运行中**: `working`.
+- **已完成**: only `done`. `idle` is never counted as completed, even if it
+  has a positive `completion_seq`.
+- **其他状态**: `idle`, `blocked`, `unknown` or future statuses; shown
+  separately so they are not silently omitted or counted as completed.
+
+“Completed” means the current turn ended, **not** that the task passed
+verification or the process exited. This is a live view of detected agent
+panes: closed panes disappear, and past completions are not stored or counted
+as cumulative history. Plain shell panes are excluded. An unavailable server,
+missing binary, timeout or invalid response shows `Herdr ⚠` rather than
+misleading zero counts. The plugin only reads Herdr state and never sends
+prompts or changes agents, tabs or workspaces.
+
+### When the Herdr server is not running
+
+The menu-bar item displays **`Herdr ⚠`**. Opening it shows:
+
+```text
+无法连接 Herdr；请检查服务或 HERDR_SOCKET_PATH
+立即刷新
+```
+
+This is a handled connection failure: the plugin exits successfully (code 0),
+without a Python traceback, and does not display misleading zero counts.
+Queries time out after 3 seconds. SwiftBar retries on the next **10-second**
+refresh, or you can choose **立即刷新** after starting Herdr. The plugin does
+not start the Herdr server itself.
+
+To check this behavior without stopping your running server, point one
+invocation at a nonexistent socket:
+
+```bash
+HERDR_SOCKET_PATH="/tmp/herdr-swiftbar-missing-$$.sock" python3 herdr-agents.10s.py
+```
+
+Python 3 itself must still be available: a missing interpreter prevents the
+plugin from starting and cannot be handled by its error menu.
+
+### Tests
+
+```bash
+python3 -B -m unittest discover -s tests -v
+```
+
 ## Changelog
 
 - v0.1
